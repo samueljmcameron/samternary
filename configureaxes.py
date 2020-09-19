@@ -1,13 +1,17 @@
-from matplotlib.axis import Tick
-import matplotlib.pyplot as plt
-import matplotlib.transforms as transforms
 import numpy as np
+import matplotlib.tri as tri
+from .changeofbasis import ChangeOfBasis
 
+class ConfigureAxes(ChangeOfBasis):
+    """
+    Set up the axes of the plot to be triangular.
+    """
 
-class ConfigureAxes():
+    def __init__(self,ax, gridon=True,
+                 grid_lw = '0.5',grid_color='k',
+                 grid_ls='--',**kwargs):
 
-    def __init__(self,ax, **kwargs):
-        
+        super().__init__()
 
         self.ax = ax
         self.tick_styles = self.set_kwargs(**kwargs)
@@ -16,6 +20,10 @@ class ConfigureAxes():
 
         self._draw_ticks()
         self._bound_axes()
+
+        if gridon:
+            self._turnon_grid(lw=grid_lw,color=grid_color,
+                              ls = grid_ls)
 
         return
 
@@ -59,23 +67,23 @@ class ConfigureAxes():
         return options
     
     def _construct_dict(self):
-
-        num = self.tick_styles['minor_tick_num']
-        ts = np.linspace(0,1,num=num,endpoint=True)
-        
-
+ 
         right_dict = {}
         bottom_dict = {}
         left_dict = {}
+        
+        num = self.tick_styles['minor_tick_num']
 
-        bottom_dict['x'] = 1*ts
-        bottom_dict['y'] = 0*ts
-        left_dict['x'] = ts[::-1]/2.
-        left_dict['y'] = np.sqrt(3)*ts[::-1]/2.
-        right_dict['x'] = 1-ts/2.
-        right_dict['y'] = np.sqrt(3)/2.*(1-ts[::-1])
+        bottom_ax,left_ax,right_ax = self.gen_B2_axes(num=num)
 
+        bottom_dict['x'] = bottom_ax[0]
+        bottom_dict['y'] = bottom_ax[1]
+        left_dict['x'] = left_ax[0]
+        left_dict['y'] = left_ax[1]
+        right_dict['x'] = right_ax[0]
+        right_dict['y'] = right_ax[1]
 
+        
         axdict ={}
         axdict['bottom'] = bottom_dict
         axdict['left'] = left_dict
@@ -146,12 +154,35 @@ class ConfigureAxes():
                                  va='center')
 
         return
+
+    def _turnon_grid(self,lw='0.5',color='k',
+                     ls = '--'):
+
+        xsmall = np.linspace(0,1,num=11,endpoint=True)
+        ysmall = 1*xsmall
+
+        xsm,ysm = np.meshgrid(xsmall,ysmall)
+
+        smallpoints = self.B1_to_B2(xsm,ysm)
+
+        xflat = smallpoints[0].flatten()
+        yflat = smallpoints[1].flatten()
+
+        triang = tri.Triangulation(xflat,yflat)
+
+        mask = yflat[triang.triangles].mean(axis=1)<=0
+        triang.set_mask(mask)
+        self.ax.triplot(triang,lw=lw,color=color,
+                        linestyle=ls)
+
+        return
+
     
     def _bound_axes(self):
 
+        self.ax.axis('equal')        
         self.ax.set_xlim(-0.1,1.1)
         self.ax.set_ylim(-0.1,np.sqrt(3)/2.0+0.1)
-        self.ax.axis('equal')
         self.ax.set_axis_off()
         return
 
@@ -197,12 +228,10 @@ class ConfigureAxes():
 
 if __name__ == "__main__":
 
-
-    import plotpub
-
-    figsize = plotpub.PlotPub()
-    fig,ax = plt.subplots(figsize=[figsize[1],figsize[1]])
+    import matplotlib.pyplot as plt
+    
+    fig,ax = plt.subplots()
 
     ConfigureAxes(ax)
 
-    fig.savefig("dum.pdf")
+    plt.show()
