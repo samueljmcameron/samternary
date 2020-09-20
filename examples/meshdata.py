@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .ternary import Ternary
+from samternary.ternary import Ternary
 
 
 

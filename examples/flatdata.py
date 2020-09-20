@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .ternary import Ternary
+from samternary.ternary import Ternary
 
 
 
@@ -59,4 +59,4 @@ ax_trans.set_title("flattened-grid "
 cbar = fig.colorbar(cs,ax=ax_trans,shrink=0.6)
 fig.subplots_adjust(bottom=0.2,hspace=0.01)
 plt.show()
-fig.savefig("example_flatarrays.pdf")
+#fig.savefig("example_flatarrays.pdf")

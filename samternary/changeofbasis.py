@@ -14,9 +14,7 @@ class ChangeOfBasis():
     e1=(1,0), e2=(0,1)
 
     and the basis vectors in B2 defined via the
-    transformation matrix
-
-    R = [[1,tan(pi/12),0],[-tan(pi/12),-1,1],[0,0,1]].
+    transformation matrix R (R is defined in __init__).
 
     So, if writing a vector v in B1 coordinates, i.e.
    
@@ -26,6 +24,7 @@ class ChangeOfBasis():
     i.e.
 
     v = (u,v,1)_{B2}
+
     via
 
     (x,y,1)_{B1} = R^{-1}(u,v,1)_{B2},
@@ -82,6 +81,31 @@ class ChangeOfBasis():
 
     def B2_to_B1(self,v_1,v_2):
 
+        """
+        Transform ordered pair (v_1,v_2) from ternary
+        coordinates to (2D) Cartesian coordinates.
+        This is the inverse transform of B1_to_B2.
+
+        Parameters
+        ----------
+        v_1 : array or float
+          Bottom axis coordinate value(s) to be transformed.
+        v_2 : array or float
+          Left axis coordinate value(s) to be transformed.
+          Must have the same shape as v_1.
+
+        Returns
+        -------
+        points : numpy array with (v_1,v_2) data transformed
+           into Cartesian coordinates. points[0] is array of
+           first coordinate, points[1] is array of second
+           coordinates. E.g. x,y = points[0],points[1].
+
+
+        See Also
+        --------
+        .B1_to_B2
+        """
         v_1, v_2 = np.asarray(v_1), np.asarray(v_2)
         return np.array([self.Rinv[0,0]*v_1
                          +self.Rinv[0,1]*v_2
@@ -91,6 +115,31 @@ class ChangeOfBasis():
                          +self.Rinv[1,2]])
 
     def B1_to_B2(self,v_1,v_2):
+
+        """
+        Transform ordered pair (v_1,v_2) from Cartesian
+        coordinates to ternary coordinates.
+        This is the inverse transform of B2_to_B1.
+
+        Parameters
+        ----------
+        v_1 : array or float
+          Bottom axis coordinate value(s) to be transformed.
+        v_2 : array or float
+          Left axis coordinate value(s) to be transformed.
+          Must have the same shape as v_1.
+
+        Returns
+        -------
+        points : numpy array with (v_1,v_2) data transformed
+           into ternary coordinates. points[0] is array of
+           first coordinate, points[1] is array of second
+           coordinates. E.g. x,y = points[0],points[1].
+
+        See Also
+        --------
+        .B2_to_B1
+        """
         
         v_1, v_2 = np.asarray(v_1), np.asarray(v_2)
         return np.array([self.R[0,0]*v_1
@@ -101,6 +150,24 @@ class ChangeOfBasis():
                          +self.R[1,2]])
 
     def gen_B1_unitvecs(self,num=10):
+
+        """ Generate unit vectors for basis 1. These
+        are just the normal Cartesian unit vectors
+        e1 = (1,0) and e2 = (0,1).
+        
+        Parameters
+        ----------
+        num : int, optional
+          number of points in the unit vector (mainly for
+          plotting purposes). Default is 10.
+
+        Returns
+        -------
+        e_1 : 2D np.array
+          Cartesian unit vector in x direction.
+        e_2 : 2D np.array
+          Cartesian unit vector in y direction.
+        """
 
         e_1x = np.linspace(0,1,num=num,endpoint=True)
         e_1y = 0*e_1x
@@ -115,15 +182,61 @@ class ChangeOfBasis():
 
     def gen_B1_axes(self,num=10):
 
+        """ Creates 2D arrays that can be used to plot
+        Cartesian axes (not recommended to do this, just
+        use default matplotlib axes instead). Mainly
+        included for conceptual symmetry.
+
+        Parameters
+        ----------
+        num : int, optional
+          number of points in the axes lines.
+          Default is 10.
+
+        Returns
+        -------
+        e_1 : 2D np.array
+          array representing Cartesian axis y=0.
+        e_2 : 2D np.array
+          array representing Cartesian axis x=0.
+        """
+
         return self.gen_B1_unitvecs(num=num)
 
     def gen_B2_unitvecs(self,num=10,frameon=False):
 
+        """ Generate unit vectors for basis 2. These
+        are more complicated unit vectors. This
+        function's purpose is mainly for generating
+        the ternary plot axes.
+        
+        Parameters
+        ----------
+        num : int, optional
+          number of points in the unit vectors (mainly for
+          plotting purposes). Default is 10.
+        frameon : boolean, optional
+          If True, tells this function to generate a third
+          vector which intersects the two unit vectors at
+          an angle of pi/3 (creating a equilateral triangle).
+          Mainly useful for plotting purposes.
+
+        Returns
+        -------
+        f_1 : 2D np.array
+          ternary unit vector 1.
+        f_2 : 2D np.array
+          ternary unit vector 2.
+        bord : 2D np.array or None
+          Third vector used for completing the
+          equilateral triangle started by f_1 and f_2.
+          None if input argument frameon is False.
+        """
+
+
         e_1,e_2 = self.gen_B1_axes(num=num)
 
         f_1 = self.B1_to_B2(e_1[0],e_1[1])
-
-
         
         f_2 = self.B1_to_B2(e_2[0],e_2[1])
 
@@ -137,6 +250,29 @@ class ChangeOfBasis():
         return f_1, f_2, bord
 
     def gen_B2_axes(self,num=10):
+
+        """ Creates 2D arrays that can be used to plot
+        ternary axes.
+
+        Parameters
+        ----------
+        num : int, optional
+          number of points in the axes lines.
+          Default is 10.
+
+        Returns
+        -------
+        bottom_ax : 2D np.array
+          array representing ternary axis along the
+          bottom of the plot (y=0).
+        left_ax : np.array
+          array representing ternary axis along the
+          left of the plot (y=np.sqrt(3)/2*x).
+        right_ax : np.array
+          array representing ternary axis along the
+          right of the plot (y=-np.sqrt(3)*(x-0.5)).
+        """
+
 
         f_1,f_2,bord = self.gen_B2_unitvecs(num=num,
                                             frameon=True)
