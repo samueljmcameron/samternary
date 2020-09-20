@@ -15,5 +15,5 @@ See the examples folder for a list of examples on how to use \
 this package.
 
 ![Boring 3D data transformed into an exciting ternary plot]\
-(http://github.com/samueljmcameron/samternary/tree/master/examples/meshdata.pdf)
+(https://github.com/samueljmcameron/samternary/tree/master/examples/example_meshdata.pdf)
 
