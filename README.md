@@ -14,5 +14,5 @@ property), then this package could be useful.
 See the examples folder for a list of examples on how to use \
 this package.
 
-![test](/samternary/examples/example_meshdata.pdf)
+![test](/samternary/examples/example_meshdata.png)
 

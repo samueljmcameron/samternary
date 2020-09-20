@@ -44,4 +44,4 @@ ax_trans.set_title("mesh-grid "
 cbar = fig.colorbar(cs,ax=ax_trans,shrink=0.6)
 fig.subplots_adjust(bottom=0.2,hspace=0.01)
 plt.show()
-fig.savefig("example_meshdata.pdf")
+fig.savefig("example_meshdata.png")
