@@ -1,7 +1,7 @@
 import numpy as np
-import matplotlib.tri as tri
 
-class Ternary():
+
+class ChangeOfBasis():
 
     """ Affine change of basis from B1 to B2 where
 
@@ -100,9 +100,9 @@ class Ternary():
                          +self.R[1,1]*v_2
                          +self.R[1,2]])
 
-    def gen_B1_axes(self):
+    def gen_B1_unitvecs(self,num=10):
 
-        e_1x = np.linspace(0,1,num=10,endpoint=True)
+        e_1x = np.linspace(0,1,num=num,endpoint=True)
         e_1y = 0*e_1x
     
         e_2x = 0*e_1x
@@ -113,89 +113,83 @@ class Ternary():
     
         return e_1, e_2
 
-    def gen_B2_axes(self,fullframe = True):
+    def gen_B1_axes(self,num=10):
 
-        e_1,e_2 = self.gen_B1_axes()
+        return self.gen_B1_unitvecs(num=num)
+
+    def gen_B2_unitvecs(self,num=10,frameon=False):
+
+        e_1,e_2 = self.gen_B1_axes(num=num)
 
         f_1 = self.B1_to_B2(e_1[0],e_1[1])
+
+
         
         f_2 = self.B1_to_B2(e_2[0],e_2[1])
 
-        if fullframe:
+        if frameon == True:
             s_x = 1*e_1[0]
             s_y = 1-s_x
             bord = self.B1_to_B2(s_x,s_y)
-
         else:
-            bord = None 
-        return f_1,f_2,bord
+            born = None
 
-    def turnon_grid(self,ax,lw='0.5',color='k',
-                    ls = '--'):
+        return f_1, f_2, bord
 
+    def gen_B2_axes(self,num=10):
 
+        f_1,f_2,bord = self.gen_B2_unitvecs(num=num,
+                                            frameon=True)
+        bottom_ax = 1*bord
+        left_ax = np.array([f_2[0],f_2[1]])
+        right_ax = np.array([f_1[0][::-1],f_1[1][::-1]])
 
-        xsmall = np.linspace(0,1,num=11,endpoint=True)
-        ysmall = 1*xsmall
-
-        xsm,ysm = np.meshgrid(xsmall,ysmall)
-
-        smallpoints = self.B1_to_B2(xsm,ysm)
-
-        xflat = smallpoints[0].flatten()
-        yflat = smallpoints[1].flatten()
-
-        triang = tri.Triangulation(xflat,yflat)
-
-        mask = yflat[triang.triangles].mean(axis=1)<=0
-        triang.set_mask(mask)
-        ax.triplot(triang,lw=lw,color=color,
-                   linestyle=ls)
-
-        return
+        return bottom_ax,left_ax,right_ax
 
 
 if __name__=="__main__":
 
     import matplotlib.pyplot as plt
-    import seaborn as sns
 
-    tern = Ternary()
+    cob = ChangeOfBasis()
+
     
     
     fig,ax = plt.subplots()
     
 
-    e1,e2 = tern.gen_B1_axes()
+    e1,e2 = cob.gen_B1_axes()
 
-    f1,f2,border = tern.gen_B2_axes()
-    
+    f1,f2,border = cob.gen_B2_axes()
+
+    print(f1,f2,border)
     ax.plot(e1[0],e1[1],'k-')
     ax.plot(e2[0],e2[1],'k-')
 
     ax.plot(f1[0],f1[1],'r-')
-    ax.plot(f2[0],f2[1],'r-')
-    ax.plot(border[0],border[1],'r-')
+    ax.plot(f2[0],f2[1],'g-')
+    ax.plot(border[0],border[1],'b-')
 
 
     Ae = [0.2,0.2]
-    Be = [0.3,0.2]
-    Ce = [0.2,0.3]
+    Be = [0.2,0.3]
+    Ce = [0.3,0.2]
+
 
     points = [Ae,Be,Ce]
 
 
-    colors = sns.color_palette()
+    colors = ['r','g','b']
 
     for i,point in enumerate(points):
 
         ax.plot(point[0],point[1],'*',color=colors[i])
 
-        pf = tern.B1_to_B2(point[0],point[1])
+        pf = cob.B1_to_B2(point[0],point[1])
 
         ax.plot(pf[0],pf[1],'s',color=colors[i])
 
 
     ax.axis('square')
 
-    fig.savefig("fig.pdf")
+    plt.show()

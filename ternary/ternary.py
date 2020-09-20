@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.tri as tri
 from .changeofbasis import ChangeOfBasis
 
-class ConfigureAxes(ChangeOfBasis):
+class Ternary(ChangeOfBasis):
     """
     Set up the axes of the plot to be triangular.
     """
@@ -232,6 +232,6 @@ if __name__ == "__main__":
     
     fig,ax = plt.subplots()
 
-    ConfigureAxes(ax)
+    Ternary(ax)
 
     plt.show()
